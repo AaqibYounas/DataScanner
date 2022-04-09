@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TBEasyWebCam;
 using System.Collections;
+using UnityEngine.Assertions;
 
 public class QRDecodeTest : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class QRDecodeTest : MonoBehaviour
 	public Image torchImage;
 
 	public Example dataBase;
+	public GameObject resultTime;
 	/// <summary>
 	/// when you set the var is true,if the result of the decode is web url,it will open with browser.
 	/// </summary>
@@ -28,7 +30,6 @@ public class QRDecodeTest : MonoBehaviour
 
 	public void qrScanFinished(string dataText)
 	{
-        Debug.Log(dataText);
 
 		if (isOpenBrowserIfUrl) {
 			if (Utility.CheckIsUrlFormat(dataText))
@@ -42,20 +43,24 @@ public class QRDecodeTest : MonoBehaviour
 		}
 		this.UiText.text = dataText;
 		moviesString = " ";
+		string A;
+		//dataText = dataText.ToUpper();
+
+        Debug.Log(dataText);
 		//StartCoroutine(showMoviesData());
         foreach (var item in dataBase.moviesData)
         {
-			print(item.actorName);
-			
-            if (item.actorName.Contains(dataText))
+			//A = item.actorName.ToUpper();
+			//print(A);
+			if (item.actorName.ToUpper().Contains(dataText.ToUpper()))
             {
                 print("Item : " + item);
-                foreach (var movie in item.movies)
-                {
-					moviesString = moviesString + " - " + movie;
-                }
-				this.UiMovies.text = moviesString;
+				if (!FindObjectOfType<GameManager>().isComparison2(item.actorName))
+					FindObjectOfType<GameManager>().ResultShower(item.actorName, item.movies);
+
 				waitBool = true;
+				e_qrController.StopWork();
+
 				break;
             }
         }

@@ -45,7 +45,7 @@ public class DeviceCameraController : MonoBehaviour {
         }
         webcam = new DeviceCamera (isUseEasyWebCam);
         EasyWebCam.OnEasyWebCamStart += PreviewStart;
-        StartWork();
+        //StartWork();
     }
     
     void PreviewStart()
@@ -83,6 +83,7 @@ public class DeviceCameraController : MonoBehaviour {
     /// </summary>
     public void StartWork()
     {
+        previewImage.transform.parent.gameObject.SetActive(true);
         if (this.webcam != null) {
             this.webcam.Play ();
         }
@@ -102,6 +103,8 @@ public class DeviceCameraController : MonoBehaviour {
         {
             previewImage.texture = null;
         }
+        previewImage.transform.parent.gameObject.SetActive(false);
+
     }
 
     public void tapFocus()

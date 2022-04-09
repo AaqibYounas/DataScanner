@@ -6,6 +6,15 @@ public class Example : MonoBehaviour
 {
     public int i = 90;
     public List<MoviesData> moviesData;
+
+
+    //private void Start()
+    //{
+    //    foreach (var item in moviesData)
+    //    {
+    //        item.movies.RemoveAt(0);
+    //    }
+    //}
 }
 
 [System.Serializable]
