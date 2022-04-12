@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
+using System.IO;
 
 public class GameManager : MonoBehaviour
 {
@@ -14,6 +15,11 @@ public class GameManager : MonoBehaviour
     public GameObject _mainmenu;
     public GameObject _filmogragy;
     public GameObject _compare2;
+
+    public GameObject loaderIMG;
+    public GameObject updateBTN;
+    private List<Version> verison;
+    int verCurrent;
 
     public QRDecodeTest deviceCameraController;
 
@@ -35,16 +41,11 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //ResultShower("Apple ", new List<string>() { "1","2","3","4","6","7" });
-        //foreach (var item in dataBase.moviesData)
-        //{
-        //    autocompleteBox.AvailableOptions.Add(item.actorName);
-        //}
-        //autocompleteBox.gameObject.SetActive(true);
+        verCurrent = PlayerPrefs.GetInt("version");
 
-        //string json = JsonConvert.SerializeObject(dataBase.moviesData);
-        //print(json);
+        LoadDataFromFile();
 
+        StartCoroutine(CheckUpdate());
     }
 
     public void ResultShower(string name,List<string> movies)
@@ -195,6 +196,37 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public IEnumerator CheckUpdate()
+    {
+        ///api/version/
+        ///
+        using (UnityWebRequest request = UnityWebRequest.Get("https://moovees.herokuapp.com/api/version/"))
+        {
+            yield return request.SendWebRequest();
+
+            if (request.isNetworkError)
+            {
+                Debug.Log(request.error);
+            }
+            else
+            {
+                Debug.Log(request.downloadHandler.text);
+                verison = JsonConvert.DeserializeObject<List<Version>>(request.downloadHandler.text.ToString());
+                print(verison[0].version);
+                verCurrent = int.Parse(verison[0].version);
+                print(verCurrent);
+
+                if(verCurrent > PlayerPrefs.GetInt("version", 0))
+                {
+                    print("Update is availabe");
+                    updateBTN.SetActive(true);
+                    
+                }
+            }
+        }
+    }
+
+
 
 
     public void GetRequestCall()
@@ -204,13 +236,12 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator ProcessRequest(string uri)
     {
-        print("1");
-        using (UnityWebRequest request = UnityWebRequest.Get(uri))
+        loaderIMG.SetActive(true);
+
+        using (UnityWebRequest request = UnityWebRequest.Get("https://moovees.herokuapp.com/api/version/"))
         {
-        print("2");
             yield return request.SendWebRequest();
 
-        print("3");
             if (request.isNetworkError)
             {
                 Debug.Log(request.error);
@@ -218,8 +249,49 @@ public class GameManager : MonoBehaviour
             else
             {
                 Debug.Log(request.downloadHandler.text);
+                verison = JsonConvert.DeserializeObject<List<Version>>(request.downloadHandler.text.ToString());
+                print(verison[0].version);
+                verCurrent = int.Parse(verison[0].version);
             }
-        print("4");
+        }
+       
+
+
+        using (UnityWebRequest request = UnityWebRequest.Get(uri))
+        {
+            yield return request.SendWebRequest();
+
+            if (request.isNetworkError)
+            {
+                Debug.Log(request.error);
+                loaderIMG.SetActive(false);
+            }
+            else
+            {
+                Debug.Log(request.downloadHandler.text);
+
+                File.WriteAllText(Application.dataPath + "/MoviesData.txt" ,request.downloadHandler.text.ToString());
+                LoadDataFromFile();
+                PlayerPrefs.SetInt("version", verCurrent);
+            }
         }
     }
+
+
+    public void LoadDataFromFile()
+    {
+        string jsonText = File.ReadAllText(Application.dataPath + "/MoviesData.txt");
+        print(jsonText);
+        dataBase.moviesData.Clear();
+        dataBase.moviesData = JsonConvert.DeserializeObject<List<MoviesData>>(jsonText);
+        loaderIMG.SetActive(false);
+    }
+}
+
+
+
+public class Version
+{
+    public int id;
+    public string version;
 }
