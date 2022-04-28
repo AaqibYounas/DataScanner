@@ -42,10 +42,17 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         verCurrent = PlayerPrefs.GetInt("version");
+        print(Application.persistentDataPath);
+        if (PlayerPrefs.GetInt("isFirstTime") == 0)
+        {
+            GetRequestCall();
+        }
+        else
+        {
+            LoadDataFromFile();
+            StartCoroutine(CheckUpdate());
+        }
 
-        LoadDataFromFile();
-
-        StartCoroutine(CheckUpdate());
     }
 
     public void ResultShower(string name,List<string> movies)
@@ -270,9 +277,11 @@ public class GameManager : MonoBehaviour
             {
                 Debug.Log(request.downloadHandler.text);
 
-                File.WriteAllText(Application.dataPath + "/MoviesData.txt" ,request.downloadHandler.text.ToString());
+                File.WriteAllText(Application.persistentDataPath + "/MoviesData.txt" ,request.downloadHandler.text.ToString());
                 LoadDataFromFile();
                 PlayerPrefs.SetInt("version", verCurrent);
+                PlayerPrefs.SetInt("isFirstTime", 1);
+
             }
         }
     }
@@ -280,11 +289,21 @@ public class GameManager : MonoBehaviour
 
     public void LoadDataFromFile()
     {
-        string jsonText = File.ReadAllText(Application.dataPath + "/MoviesData.txt");
+        string jsonText = File.ReadAllText(Application.persistentDataPath + "/MoviesData.txt");
         print(jsonText);
         dataBase.moviesData.Clear();
         dataBase.moviesData = JsonConvert.DeserializeObject<List<MoviesData>>(jsonText);
+
+        List<string> tempActors = new List<string>();
+        foreach (var item in dataBase.moviesData)
+        {
+            tempActors.Add(item.actorName);
+        }
+
+        autocompleteBox.AvailableOptions = tempActors;
+
         loaderIMG.SetActive(false);
+        updateBTN.SetActive(false);
     }
 }
 
