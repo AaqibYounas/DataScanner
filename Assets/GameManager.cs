@@ -38,6 +38,10 @@ public class GameManager : MonoBehaviour
     public string firstActorString;
     public string secondActorString;
 
+
+    public string mainLink = "https://movies-app-api.azurewebsites.net/";
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -207,7 +211,7 @@ public class GameManager : MonoBehaviour
     {
         ///api/version/
         ///
-        using (UnityWebRequest request = UnityWebRequest.Get("https://moovees.herokuapp.com/api/version/"))
+        using (UnityWebRequest request = UnityWebRequest.Get(mainLink + "api/version/"))
         {
             yield return request.SendWebRequest();
 
@@ -238,14 +242,14 @@ public class GameManager : MonoBehaviour
 
     public void GetRequestCall()
     {
-        StartCoroutine( ProcessRequest("https://moovees.herokuapp.com/api/movies/"));
+        StartCoroutine( ProcessRequest(mainLink + "api/movies/"));
     }
 
     private IEnumerator ProcessRequest(string uri)
     {
         loaderIMG.SetActive(true);
 
-        using (UnityWebRequest request = UnityWebRequest.Get("https://moovees.herokuapp.com/api/version/"))
+        using (UnityWebRequest request = UnityWebRequest.Get(mainLink + "api/version/"))
         {
             yield return request.SendWebRequest();
 
