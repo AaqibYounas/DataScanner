@@ -39,7 +39,7 @@ public class GameManager : MonoBehaviour
     public string secondActorString;
 
 
-    public string mainLink = "https://movies-app-api.azurewebsites.net/";
+    public string mainLink = "https://movieappv1.herokuapp.com/";
 
 
     // Start is called before the first frame update
@@ -290,13 +290,20 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
+    public string jsonText;
     public void LoadDataFromFile()
     {
         string jsonText = File.ReadAllText(Application.persistentDataPath + "/MoviesData.txt");
         print(jsonText);
         dataBase.moviesData.Clear();
         dataBase.moviesData = JsonConvert.DeserializeObject<List<MoviesData>>(jsonText);
+        this.jsonText = jsonText;
+        dataBase.moviesData.Sort((x, y) => string.Compare(x.actorName, y.actorName));
+        foreach (var p in dataBase.moviesData)         // Prniting After alphabetical Sort.
+        { // Loop through List with foreach
+            print(p.actorName);
+        }
+
 
         List<string> tempActors = new List<string>();
         foreach (var item in dataBase.moviesData)
