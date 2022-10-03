@@ -7,6 +7,7 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
 using System.IO;
+using System;
 
 public class GameManager : MonoBehaviour
 {
@@ -307,8 +308,9 @@ public class GameManager : MonoBehaviour
 
         List<string> tempActors = new List<string>();
         foreach (var item in dataBase.moviesData)
-        {
-            tempActors.Add(item.actorName);
+        { 
+            if(!string.Equals(item.actorName, "actor", StringComparison.OrdinalIgnoreCase))
+                tempActors.Add(item.actorName);
         }
 
         autocompleteBox.AvailableOptions = tempActors;
